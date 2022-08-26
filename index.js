@@ -62,7 +62,7 @@ app.post("/api/login", async (req,res)=>{
     })
     .then((result)=> result.length == 0 ? false :  bcrypt.compareSync(login_parameters.password,result[0].password)) //
     .then((ifSuccess)=>ifSuccess ? res.send("LOGIN_SUCCESS") : res.send("LOGIN_UNSUCCESS"))
-    .catch(()=>res.send("BAD"));
+    .catch((err)=>res.send(err));
     
 });
 app.post("/api/registerVisitor", async (req,res)=>{
