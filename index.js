@@ -222,6 +222,15 @@ app.post("/api/revokePermission/:visitor_id/:session_id",(req,res)=>{
     .then(()=>res.sendStatus(200))
     .catch(()=>res.send("BAD"));
 })
+app.get("/api/getAllVisitors",(req,res)=>{
+    let sql = `SELECT * FROM visitor`;
+    return new Promise((resolve,reject)=>{
+        con.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
+    })
+    .then((message)=>res.send(message))
+    .catch(()=>res.send("BAD"));
+});
+
 
 
 app.listen(port,()=>console.log("Listening"));
