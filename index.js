@@ -225,7 +225,7 @@ app.post("/api/revokePermission/:visitor_id/:session_id",(req,res)=>{
 app.get("/api/getAllVisitors",(req,res)=>{
     let sql = `SELECT * FROM visitor`;
     return new Promise((resolve,reject)=>{
-        con.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
+        con.query(sql,(result,err)=> err ? reject(err) : resolve({message:result}));
     })
     .then((message)=>res.send(message))
     .catch((err)=>res.send(err));
