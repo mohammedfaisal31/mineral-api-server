@@ -228,7 +228,7 @@ app.get("/api/getAllVisitors",(req,res)=>{
         con.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
     })
     .then((message)=>res.send(message))
-    .catch(()=>res.send("BAD"));
+    .catch((err)=>res.send(err));
 });
 
 
