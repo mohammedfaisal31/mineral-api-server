@@ -16,14 +16,17 @@ app.use(bodyParser.urlencoded({
 
 // Connect to database
 const mysql = require("mysql2");
-const con = mysql.createConnection({
-    host:"bet3evpp1vzht5klobur-mysql.services.clever-cloud.com",
-    user:"ur9bbdmjful3npk7",
+const pool = mysql.createPool({
+    host:"localhost",
+    user:"root",
     port:3306,
-    database:"bet3evpp1vzht5klobur",
-    password:"WgppfOHyBeFqQ2KXF7uW"
+    database:"kisar_go",
+    password:"65109105@mysql",
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
-con.connect((err)=>err ? console.log(err) : console.log("connected") );
+//con.connect((err)=>err ? console.log(err) : console.log("connected") );
 
 // parse application/json
 app.use(bodyParser.json());
@@ -43,7 +46,7 @@ app.post("/api/register", async (req,res)=>{
     
     console.log(sql);
     return new Promise((resolve,reject)=>{
-        con.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
+        pool.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
     })
     .then((message)=>res.send("ROW_INSERTED"))
     .catch((err)=>err.code === "ER_DUP_ENTRY" ? res.send("DUP_ENTRY"): res.send("UNKNOWN_ERROR"));
@@ -58,7 +61,7 @@ app.post("/api/login", async (req,res)=>{
     
     console.log(sql);
     return new Promise((resolve,reject)=>{
-        con.query(sql,(err,result)=> err ? reject(err) : resolve(result));
+        pool.query(sql,(err,result)=> err ? reject(err) : resolve(result));
     })
     .then((result)=> result.length == 0 ? false :  bcrypt.compareSync(login_parameters.password,result[0].password)) //
     .then((ifSuccess)=>ifSuccess ? res.send("LOGIN_SUCCESS") : res.send("LOGIN_UNSUCCESS"))
@@ -137,7 +140,7 @@ app.post("/api/registerVisitor", async (req,res)=>{
 
 
      return new Promise((resolve,reject)=>{
-         con.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
+         pool.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
      })
      .then((message)=>res.send("ROW_INSERTED"))
      .catch((err)=>err.code === "ER_DUP_ENTRY" ? res.send("DUP_ENTRY"): res.send("UNKNOWN_ERROR"));
@@ -147,7 +150,7 @@ app.post("/api/registerVisitor", async (req,res)=>{
 app.get("/api/getAllVisitorIds",(req,res)=>{
     let sql = `SELECT visitor_id FROM visitor`;
     return new Promise((resolve,reject)=>{
-        con.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
+        pool.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
     })
     .then((message)=>res.send(message))
     .catch(()=>res.send("BAD"));
@@ -162,7 +165,7 @@ app.post("/api/addConsoleEntry/:id",(req,res)=>{
                 "${addConsoleEntryParameters.session_title}"
                 )`;
     return new Promise((resolve,reject)=>{
-        con.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
+        pool.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
     })
     .then((message)=>res.sendStatus(200))
     .catch((err)=>err.code === "ER_DUP_ENTRY" ? res.send("DUP_ENTRY"): res.send("UNKNOWN_ERROR"));
@@ -171,7 +174,7 @@ app.post("/api/addConsoleEntry/:id",(req,res)=>{
 app.get("/api/sessionStatus",(req,res)=>{
     let sql  = `SELECT * FROM session_on`;
     return new Promise((resolve,reject)=>{
-        con.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
+        pool.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
     })
     .then((message)=>res.send(message))
     .catch(()=>res.send("BAD"));
@@ -180,7 +183,7 @@ app.get("/api/sessionStatus",(req,res)=>{
 app.get("/api/getSessionTitle/:id",(req,res)=>{
     let sql = `SELECT DISTINCT session_title FROM console_entry_permissions WHERE session_id="${req.params.id}"`;
     return new Promise((resolve,reject)=>{
-        con.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
+        pool.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
     })
     .then((message)=>res.send(message))
     .catch(()=>res.send("BAD"));
@@ -189,7 +192,7 @@ app.get("/api/getSessionTitle/:id",(req,res)=>{
 app.post("/api/addSession/:id",(req,res)=>{
     let sql = `INSERT INTO session_on(session_id) VALUES("${req.params.id}")`;
     return new Promise((resolve,reject)=>{
-        con.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
+        pool.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
     })
     .then((message)=>res.sendStatus(200))
     .catch(()=>res.send("BAD"));
@@ -198,7 +201,7 @@ app.post("/api/addSession/:id",(req,res)=>{
 app.post("/api/deleteSession/:id",(req,res)=>{
     let sql = `DELETE FROM session_on WHERE session_id="${req.params.id}"`;
     return new Promise((resolve,reject)=>{
-        con.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
+        pool.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
     })
     .then(()=>res.sendStatus(200))
     .catch(()=>res.send("BAD"));
@@ -208,7 +211,7 @@ app.post("/api/deleteSession/:id",(req,res)=>{
 app.get("/api/getPermission/:visitor_id/:session_id",(req,res)=>{
     let sql = `SELECT permissionGranted FROM console_entry_permissions WHERE visitor_id = "${req.params.visitor_id}" AND session_id="${req.params.session_id}"`;
     return new Promise((resolve,reject)=>{
-        con.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
+        pool.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
     })
     .then((message)=>res.send(message))
     .catch(()=>res.send("BAD"));
@@ -217,7 +220,7 @@ app.get("/api/getPermission/:visitor_id/:session_id",(req,res)=>{
 app.post("/api/revokePermission/:visitor_id/:session_id",(req,res)=>{
     let sql = `UPDATE console_entry_permissions SET permissionGranted = 0  WHERE visitor_id = "${req.params.visitor_id}" AND session_id="${req.params.session_id}"`;
     return new Promise((resolve,reject)=>{
-        con.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
+        pool.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
     })
     .then(()=>res.sendStatus(200))
     .catch(()=>res.send("BAD"));
@@ -225,7 +228,7 @@ app.post("/api/revokePermission/:visitor_id/:session_id",(req,res)=>{
 app.get("/api/getAllVisitors",(req,res)=>{
     let sql = `SELECT * FROM visitor`;
     return new Promise((resolve,reject)=>{
-        con.query(sql,(result,err)=> err ? reject(err) : resolve({message:result}));
+        pool.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
     })
     .then((message)=>res.send(message))
     .catch((err)=>res.send(err));
