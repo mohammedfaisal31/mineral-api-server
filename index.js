@@ -17,11 +17,11 @@ app.use(bodyParser.urlencoded({
 // Connect to database
 const mysql = require("mysql2");
 const con = mysql.createConnection({
-    host:"bet3evpp1vzht5klobur-mysql.services.clever-cloud.com",
-    user:"ur9bbdmjful3npk7",
+    host:"localhost",
+    user:"root",
     port:3306,
-    database:"bet3evpp1vzht5klobur",
-    password:"WgppfOHyBeFqQ2KXF7uW"
+    database:"kisar_go",
+    password:"65109105@mysql"
 });
 con.connect((err)=>err ? console.log(err) : console.log("connected") );
 
