@@ -16,23 +16,15 @@ app.use(bodyParser.urlencoded({
 
 // Connect to database
 const mysql = require("mysql2");
-<<<<<<< HEAD
-const con = mysql.createConnection({
-=======
 const pool = mysql.createPool({
->>>>>>> f4399fe0071f15c605cc429baf4712a17421b6da
     host:"localhost",
     user:"root",
     port:3306,
     database:"kisar_go",
-<<<<<<< HEAD
-    password:"65109105@mysql"
-=======
     password:"65109105@mysql",
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
->>>>>>> f4399fe0071f15c605cc429baf4712a17421b6da
 });
 //con.connect((err)=>err ? console.log(err) : console.log("connected") );
 
@@ -243,5 +235,32 @@ app.get("/api/getAllVisitors",(req,res)=>{
 });
 
 
+app.post("/api/updateVisitor/:ph",(req,res)=>{
+    let sql = `UPDATE visitor 
+                SET 
+                name="${req.body.name}",
+                email="${req.body.email}",
+                visitor_id="${req.body.visitor_id}",
+                registration_number="${req.body.registration_number}"
+                WHERE
+                phone_number = "${req.params.ph}"
+                `;
+    return new Promise((resolve,reject)=>{
+        pool.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
+    })
+    .then((message)=>res.sendStatus(200))
+    .catch((err)=>err.code === "ER_DUP_ENTRY" ? res.send("DUP_ENTRY"): res.send("UNKNOWN_ERROR"));
+});
 
+app.post("/api/deleteVisitor/:ph",(req,res)=>{
+    let sql = `DELETE FROM visitor 
+                WHERE
+                phone_number = "${req.params.ph}"
+                `;
+    return new Promise((resolve,reject)=>{
+        pool.query(sql,(err,result)=> err ? reject(err) : resolve({message:result}));
+    })
+    .then((message)=>res.sendStatus(200))
+    .catch((err)=>err.code === "ER_DUP_ENTRY" ? res.send("DUP_ENTRY"): res.send("UNKNOWN_ERROR"));
+});
 app.listen(port,()=>console.log("Listening"));
