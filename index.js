@@ -263,4 +263,4 @@ app.post("/api/deleteVisitor/:ph",(req,res)=>{
     .then((message)=>res.sendStatus(200))
     .catch((err)=>err.code === "ER_DUP_ENTRY" ? res.send("DUP_ENTRY"): res.send("UNKNOWN_ERROR"));
 });
-app.listen(port,()=>console.log("Listening"));
+app.listen(port,'0.0.0.0',()=>console.log("Listening"));
